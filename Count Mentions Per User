@@ -1,0 +1,67 @@
+class Solution:
+    def countMentions(self, numberOfUsers, events):
+        MOD = 10**9 + 7   
+
+         
+        parsed = []
+        for e in events:
+            typ = e[0]
+            t = int(e[1])
+            payload = e[2]
+            priority = 0 if typ == "OFFLINE" else 1
+            parsed.append((t, priority, typ, payload))
+        parsed.sort()   
+
+        mentions = [0] * numberOfUsers
+
+         
+        offline_until = [0] * numberOfUsers
+
+        
+        def restore(time):
+            for u in range(numberOfUsers):
+                if offline_until[u] != 0 and offline_until[u] <= time:
+                    offline_until[u] = 0
+
+        idx = 0
+        n = len(parsed)
+        while idx < n:
+            
+            t = parsed[idx][0]
+            
+            restore(t)
+
+             
+            while idx < n and parsed[idx][0] == t and parsed[idx][1] == 0:
+                _, _, _, payload = parsed[idx]
+                user = int(payload)
+                 
+                offline_until[user] = max(offline_until[user], t + 60)
+                idx += 1
+
+             
+            online_now = [u for u in range(numberOfUsers) if offline_until[u] == 0]
+
+            
+            while idx < n and parsed[idx][0] == t and parsed[idx][1] == 1:
+                _, _, _, payload = parsed[idx]
+                tokens = payload.split()
+                for tk in tokens:
+                    if tk == "ALL":
+                         
+                        for u in range(numberOfUsers):
+                            mentions[u] += 1
+                    elif tk == "HERE":
+                         
+                        for u in online_now:
+                            mentions[u] += 1
+                    elif tk.startswith("id"):
+                        try:
+                            uid = int(tk[2:])
+                        except:
+                            continue
+                        if 0 <= uid < numberOfUsers:
+                            mentions[uid] += 1
+                idx += 1
+
+        return mentions
