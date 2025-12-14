@@ -1,0 +1,23 @@
+class Solution:
+    def numberOfWays(self, corridor):
+        MOD = 10**9 + 7
+        
+        seats = []
+        for i, ch in enumerate(corridor):
+            if ch == 'S':
+                seats.append(i)
+
+         
+        if len(seats) == 0 or len(seats) % 2 != 0:
+            return 0
+
+        ways = 1
+
+         
+        for i in range(2, len(seats), 2):
+            left = seats[i - 1]
+            right = seats[i]
+            ways = (ways * (right - left)) % MOD
+
+        return ways
+ 
