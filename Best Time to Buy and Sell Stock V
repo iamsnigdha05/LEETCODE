@@ -1,0 +1,41 @@
+class Solution:
+    def maximumProfit(self, prices, k):
+        n = len(prices)
+        if n == 0 or k == 0:
+            return 0
+
+        NEG_INF = float('-inf')
+
+         
+        dp = [[NEG_INF] * 3 for _ in range(k + 1)]
+        dp[0][0] = 0
+
+        for price in prices:
+            new_dp = [row[:] for row in dp]
+
+            for t in range(k + 1):
+               
+                if t > 0:
+                    new_dp[t][0] = max(
+                        dp[t][0],
+                        dp[t - 1][1] + price,   
+                        dp[t - 1][2] - price    
+                    )
+                else:
+                    new_dp[t][0] = dp[t][0]
+
+                 
+                new_dp[t][1] = max(
+                    dp[t][1],
+                    dp[t][0] - price
+                )
+
+                 
+                new_dp[t][2] = max(
+                    dp[t][2],
+                    dp[t][0] + price
+                )
+
+            dp = new_dp
+
+        return max(dp[t][0] for t in range(k + 1))
