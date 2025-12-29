@@ -1,0 +1,41 @@
+class Solution:
+    def pyramidTransition(self, bottom, allowed):
+        
+        trans = {}
+        for pat in allowed:
+            key = pat[0] + pat[1]
+            if key not in trans:
+                trans[key] = []
+            trans[key].append(pat[2])
+
+        memo = set()
+
+        def dfs(row):
+            if row in memo:
+                return False
+            if len(row) == 1:
+                return True
+
+             
+            next_rows = []
+
+            def build(i, path):
+                if i == len(row) - 1:
+                    next_rows.append(path)
+                    return
+                key = row[i] + row[i + 1]
+                if key not in trans:
+                    return
+                for c in trans[key]:
+                    build(i + 1, path + c)
+
+            build(0, "")
+
+            for nr in next_rows:
+                if dfs(nr):
+                    return True
+
+            memo.add(row)
+            return False
+
+        return dfs(bottom)
