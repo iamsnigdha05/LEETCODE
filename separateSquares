@@ -1,0 +1,38 @@
+class Solution:
+    def separateSquares(self, squares):
+        
+        total_area = sum(l * l for x, y, l in squares)
+        target = total_area / 2.0
+        
+         
+        events = []
+        for x, y, l in squares:
+            events.append((y, l))       
+            events.append((y + l, -l))  
+            
+        
+        events.sort()
+        
+        current_area = 0.0
+        current_width = 0
+        prev_y = events[0][0]
+        
+         
+        for y, l_change in events:
+            
+            height_diff = y - prev_y
+            area_segment = current_width * height_diff
+            
+             
+            if current_area + area_segment >= target:
+                needed_area = target - current_area
+                 
+                return prev_y + (needed_area / current_width)
+            
+            current_area += area_segment
+            current_width += l_change
+            prev_y = y
+            
+        return float(prev_y)
+
+
