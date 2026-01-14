@@ -1,0 +1,70 @@
+class Solution:
+    def separateSquares(self, squares):
+         
+        xs = set()
+        for x, y, l in squares:
+            xs.add(x)
+            xs.add(x + l)
+        sorted_xs = sorted(xs)
+        x_map = {val: i for i, val in enumerate(sorted_xs)}
+        n = len(sorted_xs)
+        
+      
+        events = []
+        for x, y, l in squares:
+            events.append((y, 1, x, x + l))
+            events.append((y + l, -1, x, x + l))
+        events.sort()
+
+        
+        count = [0] * (4 * n)
+        length = [0.0] * (4 * n)
+
+        def update(v, tl, tr, l, r, val):
+            if l > r: return
+            if l == tl and r == tr:
+                count[v] += val
+            else:
+                tm = (tl + tr) // 2
+                update(2 * v, tl, tm, l, min(r, tm), val)
+                update(2 * v + 1, tm + 1, tr, max(l, tm + 1), r, val)
+            
+            if count[v] > 0:
+                length[v] = sorted_xs[tr + 1] - sorted_xs[tl]
+            else:
+                if tl < tr:
+                    length[v] = length[2 * v] + length[2 * v + 1]
+                else:
+                    length[v] = 0
+
+         
+        total_area = 0
+        prev_y = events[0][0]
+        for y, type, x1, x2 in events:
+            total_area += length[1] * (y - prev_y)
+            update(1, 0, n - 2, x_map[x1], x_map[x2] - 1, type)
+            prev_y = y
+        
+       
+        target_area = total_area / 2
+        current_area = 0
+        
+        count = [0] * (4 * n)
+        length = [0.0] * (4 * n)
+        prev_y = events[0][0]
+
+        for y, type, x1, x2 in events:
+            segment_area = length[1] * (y - prev_y)
+            
+            if current_area + segment_area >= target_area - 1e-9:
+              
+                remaining = target_area - current_area
+                
+                if length[1] > 0:
+                    return prev_y + (remaining / length[1])
+            
+            current_area += segment_area
+            update(1, 0, n - 2, x_map[x1], x_map[x2] - 1, type)
+            prev_y = y
+            
+        return float(prev_y)
