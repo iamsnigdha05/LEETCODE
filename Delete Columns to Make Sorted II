@@ -1,0 +1,18 @@
+class Solution(object):
+    def minDeletionSize(self, strs):
+        num_rows = len(strs)
+        num_cols = len(strs[0])
+        
+         
+        dp = [1] * num_cols
+        
+        for j in range(1, num_cols):
+            for p in range(j):
+                 
+                if all(strs[r][p] <= strs[r][j] for r in range(num_rows)):
+                    dp[j] = max(dp[j], dp[p] + 1)
+        
+        
+        return num_cols - max(dp)
+
+
