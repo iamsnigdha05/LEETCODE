@@ -1,0 +1,88 @@
+import heapq
+
+class Solution:
+    def minimumPairRemoval(self, nums): 
+        n = len(nums)
+        if n <= 1: return 0
+        
+        
+        vals = {i: nums[i] for i in range(n)}
+        nxt = {i: i + 1 for i in range(n - 1)}
+        prv = {i: i - 1 for i in range(1, n)}
+        
+         
+        violation_count = 0
+        for i in range(n - 1):
+            if nums[i] > nums[i+1]:
+                violation_count += 1
+        
+        if violation_count == 0:
+            return 0
+            
+       
+        heap = []
+        for i in range(n - 1):
+            heapq.heappush(heap, (nums[i] + nums[i+1], i))
+            
+        ops = 0
+        
+        while violation_count > 0:
+            
+            while heap:
+                s, l = heapq.heappop(heap)
+                
+                 
+                if l in nxt:
+                    r = nxt[l]
+                    if s == vals[l] + vals[r]:
+                        break  
+                
+            else:
+                break  
+                
+           
+            ops += 1
+            r = nxt[l]
+            pre = prv.get(l)
+            post = nxt.get(r)
+           
+            if pre is not None and vals[pre] > vals[l]:
+                violation_count -= 1
+            if vals[l] > vals[r]:
+                violation_count -= 1
+            if post is not None and vals[r] > vals[post]:
+                violation_count -= 1
+            
+            
+            vals[l] = vals[l] + vals[r]
+            
+          
+            if post is not None:
+                nxt[l] = post
+                prv[post] = l
+            else:
+                del nxt[l]  
+            
+             
+            if r in nxt: del nxt[r]
+            if r in prv: del prv[r]
+            del vals[r]
+            
+            
+            if pre is not None and vals[pre] > vals[l]:
+                violation_count += 1
+            if l in nxt:
+                if vals[l] > vals[nxt[l]]:
+                    violation_count += 1
+                    
+             
+            if l in nxt:
+                heapq.heappush(heap, (vals[l] + vals[nxt[l]], l))
+            if pre is not None:
+                heapq.heappush(heap, (vals[pre] + vals[l], pre))
+                
+        return ops
+
+
+        
+        
