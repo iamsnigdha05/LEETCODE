@@ -1,0 +1,30 @@
+class Solution(object):
+    def minCost(self, n, edges):
+        adj = [[] for _ in range(n)]
+
+        
+        for u, v, w in edges:
+            adj[u].append((v, w))
+
+         
+        for u, v, w in edges:
+            adj[v].append((u, 2 * w))
+
+        INF = float('inf')
+        dist = [INF] * n
+        dist[0] = 0
+
+        pq = [(0, 0)]  
+
+        while pq:
+            cost, u = heapq.heappop(pq)
+            if cost > dist[u]:
+                continue
+
+            for v, w in adj[u]:
+                if cost + w < dist[v]:
+                    dist[v] = cost + w
+                    heapq.heappush(pq, (dist[v], v))
+
+        return -1 if dist[n - 1] == INF else dist[n - 1]
+        
