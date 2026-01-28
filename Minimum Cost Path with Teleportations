@@ -1,0 +1,71 @@
+class Solution(object):
+    def minCost(self, grid, k):
+        m, n = len(grid), len(grid[0])
+        if m == 1 and n == 1: return 0
+        
+         
+        unique_vals = sorted(list(set(v for row in grid for v in row)), reverse=True)
+        val_to_rank = {v: i for i, v in enumerate(unique_vals)}
+        ranked_grid = [[val_to_rank[v] for v in row] for row in grid]
+        num_ranks = len(unique_vals)
+
+        
+        dp = [[float('inf')] * n for _ in range(m)]
+        
+         
+        dp[0][0] = 0
+        
+        def propagate(curr_dp):
+             
+            for r in range(m):
+                row = curr_dp[r]
+                if r > 0:
+                    prev_row = curr_dp[r-1]
+                    for c in range(n):
+                         
+                        new_val = prev_row[c] + grid[r][c]
+                        if new_val < row[c]:
+                            row[c] = new_val
+                for c in range(1, n):
+                    
+                    new_val = row[c-1] + grid[r][c]
+                    if new_val < row[c]:
+                        row[c] = new_val
+
+         
+        propagate(dp)
+        ans = dp[m-1][n-1]
+
+        for _ in range(k):
+            
+            rank_min_costs = [float('inf')] * num_ranks
+            for r in range(m):
+                for c in range(n):
+                    rank = ranked_grid[r][c]
+                    if dp[r][c] < rank_min_costs[rank]:
+                        rank_min_costs[rank] = dp[r][c]
+            
+             
+            for i in range(1, num_ranks):
+                if rank_min_costs[i-1] < rank_min_costs[i]:
+                    rank_min_costs[i] = rank_min_costs[i-1]
+            
+            
+            new_dp = [row[:] for row in dp]
+            for r in range(m):
+                for c in range(n):
+                     
+                    teleport_cost = rank_min_costs[ranked_grid[r][c]]
+                    if teleport_cost < new_dp[r][c]:
+                        new_dp[r][c] = teleport_cost
+            
+             
+            propagate(new_dp)
+            dp = new_dp
+            ans = min(ans, dp[m-1][n-1])
+            
+             
+            if ans == 0: break 
+            
+        return int(ans)
+        
