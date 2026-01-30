@@ -1,0 +1,59 @@
+class Solution(object):
+    def minimumCost(self, source, target, original, changed, cost):
+        n = len(source)
+        
+         
+        nodes = list(set(original) | set(changed))
+        s_to_id = {s: i for i, s in enumerate(nodes)}
+        m = len(nodes)
+        
+         
+        adj = [[] for _ in range(m)]
+        for u_s, v_s, w in zip(original, changed, cost):
+            adj[s_to_id[u_s]].append((s_to_id[v_s], w))
+            
+         
+        dist = [[float('inf')] * m for _ in range(m)]
+        for start_node in range(m):
+            dist[start_node][start_node] = 0
+            pq = [(0, start_node)]
+            while pq:
+                d, u = heapq.heappop(pq)
+                if d > dist[start_node][u]: continue
+                for v, w in adj[u]:
+                    if dist[start_node][v] > d + w:
+                        dist[start_node][v] = d + w
+                        heapq.heappush(pq, (dist[start_node][v], v))
+
+         
+        trie = {}
+        for s in nodes:
+            curr = trie
+            for char in s:
+                curr = curr.setdefault(char, {})
+            curr['#ID'] = s_to_id[s]
+
+        
+        dp = [float('inf')] * (n + 1)
+        dp[n] = 0
+        
+        for i in range(n - 1, -1, -1):
+            
+            if source[i] == target[i]:
+                dp[i] = dp[i+1]
+            
+             
+            curr_s, curr_t = trie, trie
+            for j in range(i, n):
+                if source[j] not in curr_s or target[j] not in curr_t:
+                    break
+                curr_s = curr_s[source[j]]
+                curr_t = curr_t[target[j]]
+                
+                if '#ID' in curr_s and '#ID' in curr_t:
+                    u, v = curr_s['#ID'], curr_t['#ID']
+                    if dist[u][v] != float('inf'):
+                        dp[i] = min(dp[i], dist[u][v] + dp[j+1])
+                        
+        return dp[0] if dp[0] != float('inf') else -1
+        
