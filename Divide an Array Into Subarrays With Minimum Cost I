@@ -1,0 +1,18 @@
+class Solution(object):
+    def minimumCost(self, nums):
+        first_val = nums[0]
+         
+        min1 = float('inf')
+        min2 = float('inf')
+        
+         
+        for i in range(1, len(nums)):
+            val = nums[i]
+            if val < min1:
+                min2 = min1
+                min1 = val
+            elif val < min2:
+                min2 = val
+                
+         
+        return first_val + min1 + min2
