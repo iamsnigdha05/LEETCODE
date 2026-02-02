@@ -1,0 +1,56 @@
+class Solution(object):
+    def minimumCost(self, nums, k, dist):
+        n = len(nums)
+         
+        ans = float('inf')
+        
+         
+        left = SortedList()
+        right = SortedList()
+        current_sum = 0
+        
+         
+        window_size = dist + 1
+        
+       
+        for i in range(1, n):
+            val = nums[i]
+            
+            
+            if len(left) < k - 1:
+                left.add(val)
+                current_sum += val
+            else:
+                if val < left[-1]:
+                    
+                    popped = left.pop()
+                    current_sum -= popped
+                    right.add(popped)
+                     
+                    left.add(val)
+                    current_sum += val
+                else:
+                    right.add(val)
+            
+            
+            if i > window_size:
+                out_val = nums[i - window_size]
+                if out_val in right:
+                    right.remove(out_val)
+                else:
+                    left.remove(out_val)
+                    current_sum -= out_val
+                     
+                    if right:
+                        new_val = right.pop(0)
+                        left.add(new_val)
+                        current_sum += new_val
+            
+            
+            if i >= window_size or i == n - 1:
+                
+                if len(left) == k - 1:
+                    ans = min(ans, nums[0] + current_sum)
+                    
+        return ans
+        
