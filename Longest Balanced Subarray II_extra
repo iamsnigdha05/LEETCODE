@@ -1,0 +1,26 @@
+class Solution(object):
+    def longestBalanced(self, nums):
+         
+        n = len(nums)
+        max_len = 0
+        
+        
+        for i in range(n):
+            distinct_even = set()
+            distinct_odd = set()
+            
+             
+            for j in range(i, n):
+                val = nums[j]
+                
+                if val % 2 == 0:
+                    distinct_even.add(val)
+                else:
+                    distinct_odd.add(val)
+                
+                 
+                if len(distinct_even) == len(distinct_odd):
+                    max_len = max(max_len, j - i + 1)
+                    
+        return max_len
+        
