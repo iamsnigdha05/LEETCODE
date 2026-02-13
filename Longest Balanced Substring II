@@ -1,0 +1,77 @@
+class Solution:
+    def longestBalanced(self, s):
+        n = len(s)
+        if n == 0: return 0
+        
+        ans = 0
+        
+         
+        count = 0
+        for i in range(n):
+            if i > 0 and s[i] == s[i-1]:
+                count += 1
+            else:
+                count = 1
+            if count > ans: ans = count
+ 
+        for c1, c2 in [('a', 'b'), ('b', 'c'), ('a', 'c')]:
+           
+            lookup = {0: -1}
+            diff = 0
+            last_reset = -1
+           
+            last_pos1 = -1
+            last_pos2 = -1
+            
+            for i, char in enumerate(s):
+                if char == c1:
+                    diff += 1
+                    last_pos1 = i
+                elif char == c2:
+                    diff -= 1
+                    last_pos2 = i
+                else:
+               
+                    lookup = {0: i}
+                    diff = 0
+                    last_reset = i
+                    last_pos1 = -1
+                    last_pos2 = -1
+                    continue
+                
+                if diff in lookup:
+                    
+                    if last_pos1 > last_reset and last_pos2 > last_reset:
+                        width = i - lookup[diff]
+                        if width > ans: ans = width
+                else:
+                    lookup[diff] = i
+
+         
+        lookup = {(0, 0): -1}
+        ca = cb = cc = 0
+        la = lb = lc = -1
+        
+        for i, char in enumerate(s):
+            if char == 'a': 
+                ca += 1
+                la = i
+            elif char == 'b': 
+                cb += 1
+                lb = i
+            else: 
+                cc += 1
+                lc = i
+            
+            key = (ca - cb, cb - cc)
+            if key in lookup:
+                 
+                start = lookup[key]
+                if la > start and lb > start and lc > start:
+                    width = i - start
+                    if width > ans: ans = width
+            else:
+                lookup[key] = i
+                
+        return ans
+        
