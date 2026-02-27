@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAXN 100005
+
+int queue[MAXN];
+int dist[MAXN];
+int parent[MAXN];  
+ 
+int find_set(int v) {
+    if (v >= MAXN) return MAXN;
+    if (v == parent[v]) return v;
+    return parent[v] = find_set(parent[v]);
+}
+
+int minOperations(char* s, int k) {
+    int n = strlen(s);
+    int initial_zeros = 0;
+    for (int i = 0; i < n; i++) if (s[i] == '0') initial_zeros++;
+    
+    if (initial_zeros == 0) return 0;
+
+     
+    for (int i = 0; i <= n + 2; i++) {
+        parent[i] = i;
+        dist[i] = -1;
+    }
+
+    int head = 0, tail = 0;
+    queue[tail++] = initial_zeros;
+    dist[initial_zeros] = 0;
+    
+     
+    parent[initial_zeros] = find_set(initial_zeros + 2);
+
+    while (head < tail) {
+        int z = queue[head++];
+        
+        
+        int low = abs(z - k);
+        int high = n - abs(n - (z + k));
+        
+         
+        int curr = find_set(low);
+
+        while (curr <= high) {
+            if (dist[curr] == -1) {
+                dist[curr] = dist[z] + 1;
+                if (curr == 0) return dist[curr];
+                
+                queue[tail++] = curr;
+                
+                 
+                parent[curr] = find_set(curr + 2);
+                
+                 
+                curr = find_set(curr); 
+            } else {
+                 
+                curr = parent[curr] = find_set(curr + 2);
+            }
+        }
+    }
+
+    return -1;
+}
