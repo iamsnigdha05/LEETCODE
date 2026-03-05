@@ -1,0 +1,5 @@
+class Solution:
+    def minOperations(self, s):
+        mismatches = sum(int(ch) != i % 2 for i, ch in enumerate(map(int, s)))
+        return min(mismatches, len(s) - mismatches)
+        
