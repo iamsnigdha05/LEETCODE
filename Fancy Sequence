@@ -1,0 +1,24 @@
+class Fancy:
+    def __init__(self):
+        self.nums = []
+        self.add = 0
+        self.mult = 1
+        self.MOD = 10**9 + 7
+
+    def append(self, val):
+         
+        inv_mult = pow(self.mult, self.MOD - 2, self.MOD)
+        neutral_val = ((val - self.add) * inv_mult) % self.MOD
+        self.nums.append(neutral_val)
+
+    def addAll(self, inc):
+        self.add = (self.add + inc) % self.MOD
+
+    def multAll(self, m):
+        self.mult = (self.mult * m) % self.MOD
+        self.add = (self.add * m) % self.MOD
+
+    def getIndex(self, idx):
+        if idx >= len(self.nums):
+            return -1
+        return (self.nums[idx] * self.mult + self.add) % self.MOD
