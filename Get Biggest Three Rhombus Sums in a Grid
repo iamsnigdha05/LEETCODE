@@ -1,0 +1,34 @@
+class Solution:
+    def getBiggestThree(self, grid):
+        m, n = len(grid), len(grid[0])
+        unique_sums = set()
+
+        for r in range(m):
+            for c in range(n):
+               
+                unique_sums.add(grid[r][c])
+                
+              
+                for s in range(1, min(m, n)):
+                   
+                    if r - s < 0 or r + s >= m or c - s < 0 or c + s >= n:
+                        break
+                    
+                    curr_sum = 0
+                    
+                    for i in range(s):
+                        curr_sum += grid[r - s + i][c + i]
+                   
+                    for i in range(s):
+                        curr_sum += grid[r + i][c + s - i]
+              
+                    for i in range(s):
+                        curr_sum += grid[r + s - i][c - i]
+                    
+                    for i in range(s):
+                        curr_sum += grid[r - i][c - s + i]
+                    
+                    unique_sums.add(curr_sum)
+        
+        
+        return sorted(list(unique_sums), reverse=True)[:3]
