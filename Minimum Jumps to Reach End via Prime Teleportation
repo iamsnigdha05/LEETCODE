@@ -1,0 +1,64 @@
+class Solution:
+    def minJumps(self, nums):
+        n = len(nums)
+
+        
+        def is_prime(x):
+            if x < 2:
+                return False
+            d = 2
+            while d * d <= x:
+                if x % d == 0:
+                    return False
+                d += 1
+            return True
+
+       
+        divisible = defaultdict(list)
+
+        for i, num in enumerate(nums):
+            d = 2
+            temp = num
+
+            while d * d <= temp:
+                if temp % d == 0:
+                    divisible[d].append(i)
+
+                    while temp % d == 0:
+                        temp //= d
+                d += 1
+
+            if temp > 1:
+                divisible[temp].append(i)
+
+        
+        q = deque([(0, 0)])  
+        visited = {0}
+
+        used_prime = set()
+
+        while q:
+            i, steps = q.popleft()
+
+            if i == n - 1:
+                return steps
+
+          
+            for nxt in [i - 1, i + 1]:
+                if 0 <= nxt < n and nxt not in visited:
+                    visited.add(nxt)
+                    q.append((nxt, steps + 1))
+
+            
+            val = nums[i]
+
+            if is_prime(val) and val not in used_prime:
+                for nxt in divisible[val]:
+                    if nxt not in visited:
+                        visited.add(nxt)
+                        q.append((nxt, steps + 1))
+
+                used_prime.add(val)
+
+        return -1
+        
