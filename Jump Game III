@@ -1,0 +1,31 @@
+class Solution:
+    def canReach(self, arr, start):
+        n = len(arr)
+
+        visited = set()
+        q = deque([start])
+
+        while q:
+            i = q.popleft()
+
+            
+            if arr[i] == 0:
+                return True
+
+            if i in visited:
+                continue
+
+            visited.add(i)
+
+             
+            forward = i + arr[i]
+            if 0 <= forward < n:
+                q.append(forward)
+
+             
+            backward = i - arr[i]
+            if 0 <= backward < n:
+                q.append(backward)
+
+        return False
+        
