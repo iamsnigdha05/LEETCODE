@@ -1,0 +1,10 @@
+class Solution:
+    def numberOfSpecialChars(self, word):
+
+        s = set(word)
+
+        return sum(
+            1
+            for ch in 'abcdefghijklmnopqrstuvwxyz'
+            if ch in s and ch.upper() in s
+        )
