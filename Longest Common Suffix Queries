@@ -1,0 +1,59 @@
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.best = -1
+
+
+class Solution:
+    def stringIndices(self, wordsContainer, wordsQuery):
+
+        root = TrieNode()
+
+       
+        def better(i, j):
+
+            if j == -1:
+                return i
+
+            if len(wordsContainer[i]) < len(wordsContainer[j]):
+                return i
+
+            if len(wordsContainer[i]) > len(wordsContainer[j]):
+                return j
+
+            return min(i, j)
+
+         
+        for i, word in enumerate(wordsContainer):
+
+            node = root
+
+            root.best = better(i, root.best)
+
+            for ch in reversed(word):
+
+                if ch not in node.children:
+                    node.children[ch] = TrieNode()
+
+                node = node.children[ch]
+
+                node.best = better(i, node.best)
+
+        ans = []
+
+        
+        for word in wordsQuery:
+
+            node = root
+
+            for ch in reversed(word):
+
+                if ch not in node.children:
+                    break
+
+                node = node.children[ch]
+
+            ans.append(node.best)
+
+        return ans
+        
