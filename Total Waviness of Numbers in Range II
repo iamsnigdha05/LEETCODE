@@ -1,0 +1,84 @@
+class Solution:
+    def totalWaviness(self, num1, num2):
+
+        def solve(n):
+            if n < 0:
+                return 0
+
+            s = str(n)
+            m = len(s)
+            memo = {}
+
+            def dp(pos, prev2, prev1, length, tight):
+                state = (pos, prev2, prev1, length, tight)
+
+                if state in memo:
+                    return memo[state]
+
+                if pos == m:
+                    return (1, 0) 
+
+                limit = int(s[pos]) if tight else 9
+
+                total_cnt = 0
+                total_wave = 0
+
+                for d in range(limit + 1):
+                    ntight = tight and (d == limit)
+
+                    if length == 0:
+                        if d == 0:
+                            cnt, wav = dp(
+                                pos + 1,
+                                10,
+                                10,
+                                0,
+                                ntight
+                            )
+                        else:
+                            cnt, wav = dp(
+                                pos + 1,
+                                10,
+                                d,
+                                1,
+                                ntight
+                            )
+
+                    elif length == 1:
+                        cnt, wav = dp(
+                            pos + 1,
+                            prev1,
+                            d,
+                            2,
+                            ntight
+                        )
+
+                    else:
+                        add = 0
+
+                        if (
+                            (prev1 > prev2 and prev1 > d) or
+                            (prev1 < prev2 and prev1 < d)
+                        ):
+                            add = 1
+
+                        cnt, wav = dp(
+                            pos + 1,
+                            prev1,
+                            d,
+                            2,
+                            ntight
+                        )
+
+                        wav += add * cnt
+
+                    total_cnt += cnt
+                    total_wave += wav
+
+                memo[state] = (total_cnt, total_wave)
+                return memo[state]
+
+            return dp(0, 10, 10, 0, True)[1]
+
+        return solve(num2) - solve(num1 - 1)
+        
