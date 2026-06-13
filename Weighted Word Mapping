@@ -1,0 +1,14 @@
+class Solution:
+    def mapWordWeights(self, words, weights):
+        ans = []
+
+        for word in words:
+            s = 0
+
+            for ch in word:
+                s += weights[ord(ch) - ord('a')]
+
+            s %= 26
+            ans.append(chr(ord('a') + (25 - s)))
+
+        return ''.join(ans)
