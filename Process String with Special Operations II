@@ -1,0 +1,37 @@
+class Solution:
+    def processStr(self, s, k):
+        lengths = [0]
+        cur = 0
+
+        for ch in s:
+            if 'a' <= ch <= 'z':
+                cur += 1
+            elif ch == '*':
+                if cur:
+                    cur -= 1
+            elif ch == '#':
+                cur *= 2
+            else:  # '%'
+                pass
+
+            lengths.append(cur)
+
+        if k >= cur:
+            return "."
+
+        for i in range(len(s) - 1, -1, -1):
+            ch = s[i]
+            before = lengths[i]
+
+            if 'a' <= ch <= 'z':
+                if k == before:
+                    return ch
+
+            elif ch == '#':
+                if k >= before:
+                    k -= before
+
+            elif ch == '%':
+                k = before - 1 - k
+
+        return "."
