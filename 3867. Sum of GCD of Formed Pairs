@@ -1,0 +1,24 @@
+class Solution:
+    def gcdSum(self, nums):
+        def gcd(a, b):
+            while b:
+                a, b = b, a % b
+            return a
+
+        arr = []
+        mx = 0
+
+        for x in nums:
+            if x > mx:
+                mx = x
+            arr.append(gcd(x, mx))
+
+        arr.sort()
+
+        ans = 0
+        n = len(arr)
+
+        for i in range(n // 2):
+            ans += gcd(arr[i], arr[n - 1 - i])
+
+        return ans
