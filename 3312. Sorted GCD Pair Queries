@@ -1,0 +1,54 @@
+class Solution:
+    def gcdValues(self, nums, queries):
+        mx = max(nums)
+
+        freq = [0] * (mx + 1)
+        for x in nums:
+            freq[x] += 1
+
+        exact = [0] * (mx + 1)
+
+        for g in range(mx, 0, -1):
+            cnt = 0
+            multiple = g
+            while multiple <= mx:
+                cnt += freq[multiple]
+                multiple += g
+
+            pairs = cnt * (cnt - 1) // 2
+
+            multiple = 2 * g
+            while multiple <= mx:
+                pairs -= exact[multiple]
+                multiple += g
+
+            exact[g] = pairs
+
+        prefix = []
+        values = []
+        total = 0
+
+        for g in range(1, mx + 1):
+            if exact[g] > 0:
+                total += exact[g]
+                prefix.append(total)
+                values.append(g)
+
+        def upper_bound(arr, target):
+            l, r = 0, len(arr)
+            while l < r:
+                m = (l + r) // 2
+                if arr[m] <= target:
+                    l = m + 1
+                else:
+                    r = m
+            return l
+
+        ans = []
+
+        for q in queries:
+            idx = upper_bound(prefix, q)
+            ans.append(values[idx])
+
+        return ans
+        
