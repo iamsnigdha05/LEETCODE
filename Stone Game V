@@ -1,0 +1,45 @@
+import bisect
+
+class Solution:
+    def stoneGameV(self, stoneValue):
+        n = len(stoneValue)
+        pref = [0] * (n + 1)
+        for i in range(n):
+            pref[i + 1] = pref[i] + stoneValue[i]
+
+        dp = [[0] * n for _ in range(n)]
+        maxL = [[0] * n for _ in range(n)]
+        maxR = [[0] * n for _ in range(n)]
+
+        for i in range(n):
+            maxL[i][i] = stoneValue[i]
+            maxR[i][i] = stoneValue[i]
+
+        for length in range(2, n + 1):
+            for i in range(n - length + 1):
+                j = i + length - 1
+                total = pref[j + 1] - pref[i]
+
+                # Find mid where pref[mid+1] - pref[i] <= total // 2
+                target = pref[i] + total // 2
+                mid_idx = bisect.bisect_right(pref, target, i + 1, j + 1) - 1
+                mid = mid_idx - 1
+
+                res = 0
+                if mid >= i:
+                    left_sum = pref[mid + 1] - pref[i]
+                    if left_sum * 2 == total:
+                        res = max(res, maxL[i][mid], maxR[mid + 1][j])
+                    else:
+                        res = max(res, maxL[i][mid])
+                        if mid + 2 <= j:
+                            res = max(res, maxR[mid + 2][j])
+                else:
+                    if i + 1 <= j:
+                        res = max(res, maxR[i + 1][j])
+
+                dp[i][j] = res
+                maxL[i][j] = max(maxL[i][j - 1], total + res)
+                maxR[i][j] = max(maxR[i + 1][j], total + res)
+
+        return dp[0][n - 1]
