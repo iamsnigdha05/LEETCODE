@@ -1,0 +1,18 @@
+class Solution:
+    def stoneGameVIII(self, stones):
+        prefix = []
+        total = 0
+
+        for x in stones:
+            total += x
+            prefix.append(total)
+
+        # If only two stones remain, the current player
+        # must take both.
+        dp = prefix[-1]
+
+        # Work backwards.
+        for i in range(len(stones) - 2, 0, -1):
+            dp = max(dp, prefix[i] - dp)
+
+        return dp
