@@ -1,0 +1,56 @@
+from collections import Counter
+
+class Solution:
+    def lexGreaterPermutation(self, s, target):
+        n = len(s)
+        total_count = Counter(s)
+        
+        best_diverge_idx = -1
+        best_char = None
+        
+        # Track character frequencies remaining as we match target prefix
+        curr_count = total_count.copy()
+        
+        # Try matching target up to index i-1, and diverging at index i
+        for i in range(n):
+            target_char = target[i]
+            
+            # 1. Try to find a character strictly greater than target[i]
+            for ch_code in range(ord(target_char) + 1, ord('z') + 1):
+                ch = chr(ch_code)
+                if curr_count[ch] > 0:
+                    best_diverge_idx = i
+                    best_char = ch
+                    break  # Pick the smallest character > target[i]
+            
+            # 2. Try to match target[i] to keep extending the prefix
+            if curr_count[target_char] > 0:
+                curr_count[target_char] -= 1
+            else:
+                # Cannot match target[i], stop extending prefix
+                break
+
+        # If no position can be strictly greater than target
+        if best_diverge_idx == -1:
+            return ""
+
+        # Reconstruct the optimal string using the best divergence point found
+        res = []
+        rem_count = total_count.copy()
+        
+        # Add exact prefix matching target up to best_diverge_idx - 1
+        for i in range(best_diverge_idx):
+            res.append(target[i])
+            rem_count[target[i]] -= 1
+            
+        # Add the strictly greater character at best_diverge_idx
+        res.append(best_char)
+        rem_count[best_char] -= 1
+        
+        # Fill remaining characters in sorted order
+        for ch_code in range(ord('a'), ord('z') + 1):
+            ch = chr(ch_code)
+            if rem_count[ch] > 0:
+                res.append(ch * rem_count[ch])
+                
+        return "".join(res)
