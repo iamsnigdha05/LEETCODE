@@ -1,0 +1,83 @@
+from collections import Counter
+
+class Solution:
+    def lexPalindromicPermutation(self, s, target):
+        n = len(s)
+        cnt = Counter(s)
+        
+        # Verify palindrome feasibility
+        odd_chars = [ch for ch, freq in cnt.items() if freq % 2 != 0]
+        if len(odd_chars) > 1:
+            return ""
+        
+        mid_char = odd_chars[0] if odd_chars else ""
+        
+        # Characters available for the left half
+        half_cnt = [freq // 2 for freq in (cnt[chr(i + 97)] for i in range(26))]
+        m = n // 2
+        
+        def build_palindrome(left_half):
+            left_str = "".join(left_half)
+            return left_str + mid_char + left_str[::-1]
+
+        # Case 1: Check if matching target's left half produces a valid palindrome > target
+        temp_half = list(half_cnt)
+        possible_exact = True
+        exact_left = []
+        
+        for k in range(m):
+            idx = ord(target[k]) - ord('a')
+            if temp_half[idx] > 0:
+                exact_left.append(target[k])
+                temp_half[idx] -= 1
+            else:
+                possible_exact = False
+                break
+                
+        if possible_exact:
+            cand = build_palindrome(exact_left)
+            if cand > target:
+                return cand
+
+        # Case 2: Find the rightmost position i in left half to place a character > target[i]
+        for i in range(m - 1, -1, -1):
+            # Check if target[0...i-1] can be matched
+            temp_half = list(half_cnt)
+            can_match = True
+            prefix = []
+            
+            for k in range(i):
+                idx = ord(target[k]) - ord('a')
+                if temp_half[idx] > 0:
+                    prefix.append(target[k])
+                    temp_half[idx] -= 1
+                else:
+                    can_match = False
+                    break
+                    
+            if not can_match:
+                continue
+
+            # Try placing character c > target[i] at index i
+            target_idx = ord(target[i]) - ord('a')
+            for c_idx in range(target_idx + 1, 26):
+                if temp_half[c_idx] > 0:
+                    # Form left half
+                    curr_left = list(prefix)
+                    curr_left.append(chr(97 + c_idx))
+                    
+                    temp_half_copy = list(temp_half)
+                    temp_half_copy[c_idx] -= 1
+                    
+                    # Fill remaining spaces (i+1 to m-1) with smallest available characters
+                    for r in range(26):
+                        while temp_half_copy[r] > 0:
+                            curr_left.append(chr(97 + r))
+                            temp_half_copy[r] -= 1
+                            
+                    cand = build_palindrome(curr_left)
+                    if cand > target:
+                        return cand
+                        
+        return ""
+        
