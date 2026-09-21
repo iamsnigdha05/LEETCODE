@@ -1,23 +1,25 @@
 class Solution:
-    def countSubarrays(self, nums, k, x):
-        count = [0] * x
-        answer = 0
+    def resultArray(self, nums, k):
+        answer = [0] * k
+        dp = [0] * k
 
         for num in nums:
-            new_count = [0] * x
+            remainder = num % k
+            new_dp = [0] * k
 
-            # Start a new subarray with nums[i]
-            remainder = num % x
-            new_count[remainder] += 1
+            # Start a new subarray with this number
+            new_dp[remainder] += 1
 
             # Extend previous subarrays
-            for r in range(x):
-                if count[r] > 0:
-                    new_remainder = (r * remainder) % x
-                    new_count[new_remainder] += count[r]
+            for r in range(k):
+                if dp[r] > 0:
+                    new_remainder = (r * remainder) % k
+                    new_dp[new_remainder] += dp[r]
 
-            count = new_count
+            # Add all subarrays ending here to the answer
+            for r in range(k):
+                answer[r] += new_dp[r]
 
-            answer += count[k]
+            dp = new_dp
 
         return answer
