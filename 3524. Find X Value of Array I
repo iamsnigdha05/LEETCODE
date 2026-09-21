@@ -1,0 +1,23 @@
+class Solution:
+    def countSubarrays(self, nums, k, x):
+        count = [0] * x
+        answer = 0
+
+        for num in nums:
+            new_count = [0] * x
+
+            # Start a new subarray with nums[i]
+            remainder = num % x
+            new_count[remainder] += 1
+
+            # Extend previous subarrays
+            for r in range(x):
+                if count[r] > 0:
+                    new_remainder = (r * remainder) % x
+                    new_count[new_remainder] += count[r]
+
+            count = new_count
+
+            answer += count[k]
+
+        return answer
