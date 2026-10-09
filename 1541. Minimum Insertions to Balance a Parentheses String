@@ -1,0 +1,25 @@
+class Solution:
+    def minInsertions(self, s):
+        answer = 0
+        need = 0
+
+        for ch in s:
+            if ch == '(':
+                # An odd need means one ')' is missing
+                if need % 2 == 1:
+                    answer += 1
+                    need -= 1
+
+                # Every '(' needs two ')'
+                need += 2
+
+            else:
+                need -= 1
+
+                # Too many ')' without a matching '('
+                if need < 0:
+                    answer += 1
+                    need = 1
+
+        # Add any closing parentheses still needed
+        return answer + need
