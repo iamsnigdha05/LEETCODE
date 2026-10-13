@@ -1,0 +1,15 @@
+class Solution:
+    def maxAlternatingSum(self, nums):
+        nums.sort(key=abs, reverse=True)
+
+        total = 0
+        n = len(nums)
+        half = (n + 1) // 2
+
+        for i, num in enumerate(nums):
+            if i < half:
+                total += num * num
+            else:
+                total -= num * num
+
+        return total
