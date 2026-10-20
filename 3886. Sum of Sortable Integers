@@ -1,0 +1,78 @@
+#include <vector>
+#include <algorithm>
+#include <numeric>
+
+class Solution {
+public:
+    int sortableIntegers(std::vector<int>& nums) {
+        int n = nums.size();
+        std::vector<int> sorted_nums = nums;
+        std::sort(sorted_nums.begin(), sorted_nums.end());
+
+        // Fast path: If the array is already sorted, all divisors of n are valid
+        if (nums == sorted_nums) {
+            int total_sum = 0;
+            for (int k = 1; k <= n; ++k) {
+                if (n % k == 0) {
+                    total_sum += k;
+                }
+            }
+            return total_sum;
+        }
+
+        // Helper lambda to check if divisor k is sortable
+        auto is_sortable = [&](int k) -> bool {
+            for (int i = 0; i < n; i += k) {
+                int first_target = sorted_nums[i];
+                bool block_matched = false;
+
+                // Try each possible shift offset in the current block
+                for (int shift = 0; shift < k; ++shift) {
+                    // Short-circuit: The starting element must match first_target
+                    if (nums[i + shift] == first_target) {
+                        int len1 = k - shift;
+
+                        // Check first segment: nums[i + shift ... i + k - 1] vs sorted_nums[i ... i + len1 - 1]
+                        bool match1 = std::equal(
+                            nums.begin() + i + shift, 
+                            nums.begin() + i + k, 
+                            sorted_nums.begin() + i
+                        );
+
+                        if (!match1) continue;
+
+                        // Check second segment: nums[i ... i + shift - 1] vs sorted_nums[i + len1 ... i + k - 1]
+                        bool match2 = std::equal(
+                            nums.begin() + i, 
+                            nums.begin() + i + shift, 
+                            sorted_nums.begin() + i + len1
+                        );
+
+                        if (match2) {
+                            block_matched = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!block_matched) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        int ans = 0;
+
+        // Iterate over all divisors of n
+        for (int k = 1; k <= n; ++k) {
+            if (n % k == 0) {
+                if (is_sortable(k)) {
+                    ans += k;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
