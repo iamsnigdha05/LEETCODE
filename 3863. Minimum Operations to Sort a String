@@ -1,0 +1,26 @@
+class Solution:
+    def minOperations(self, s: str) -> int:
+        n = len(s)
+
+        # Already sorted
+        if s == ''.join(sorted(s)):
+            return 0
+
+        # Cannot sort the entire string in one operation
+        if n == 2:
+            return -1
+
+        mn = min(s)
+        mx = max(s)
+
+        # One operation is enough
+        if s[0] == mn or s[-1] == mx:
+            return 1
+
+        # Check whether the minimum or maximum is inside
+        for ch in s[1:-1]:
+            if ch == mn or ch == mx:
+                return 2
+
+        # Otherwise, three operations are needed
+        return 3
