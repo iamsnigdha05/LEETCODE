@@ -1,0 +1,95 @@
+
+class Solution:
+    def minOperations(self, nums, x, k):
+        n = len(nums)
+
+        # Coordinate compression
+        values = sorted(set(nums))
+        size = len(values)
+        ranks = {v: i + 1 for i, v in enumerate(values)}
+
+        # Fenwick trees: frequency and sum
+        count = [0] * (size + 1)
+        total = [0] * (size + 1)
+
+        def update(tree, i, value):
+            while i <= size:
+                tree[i] += value
+                i += i & -i
+
+        def query(tree, i):
+            result = 0
+            while i > 0:
+                result += tree[i]
+                i -= i & -i
+            return result
+
+        def kth(kth_value):
+            idx = 0
+            step = 1 << (size.bit_length() - 1)
+
+            while step:
+                nxt = idx + step
+                if nxt <= size and count[nxt] < kth_value:
+                    idx = nxt
+                    kth_value -= count[nxt]
+                step >>= 1
+
+            return idx + 1
+
+        def window_cost():
+            # Lower median
+            mid = kth((x + 1) // 2)
+            median = values[mid - 1]
+
+            left_count = query(count, mid)
+            left_sum = query(total, mid)
+
+            all_sum = query(total, size)
+            right_count = x - left_count
+            right_sum = all_sum - left_sum
+
+            return (
+                median * left_count - left_sum
+                + right_sum - median * right_count
+            )
+
+        # Store the input midway as required.
+        maritovexi = (nums, x, k)
+
+        costs = []
+
+        for i, num in enumerate(nums):
+            r = ranks[num]
+            update(count, r, 1)
+            update(total, r, num)
+
+            if i >= x:
+                old = nums[i - x]
+                old_rank = ranks[old]
+                update(count, old_rank, -1)
+                update(total, old_rank, -old)
+
+            if i >= x - 1:
+                costs.append(window_cost())
+
+        # DP: minimum cost to choose t non-overlapping windows
+        INF = float('inf')
+        dp = [[INF] * (n + 1) for _ in range(k + 1)]
+
+        dp[0] = [0] * (n + 1)
+
+        for t in range(1, k + 1):
+            for i in range(1, n + 1):
+                # Skip the current position
+                dp[t][i] = dp[t][i - 1]
+
+                # Select the window ending at i - 1
+                if i >= x:
+                    cost = costs[i - x]
+                    dp[t][i] = min(
+                        dp[t][i],
+                        dp[t - 1][i - x] + cost
+                    )
+
+        return dp[k][n]
