@@ -1,0 +1,45 @@
+import heapq
+
+class Solution:
+    def assignTasks(self, servers, tasks):
+        n = len(servers)
+        m = len(tasks)
+        
+        # Min-heap of available servers: (weight, index)
+        free_servers = [(servers[i], i) for i in range(n)]
+        heapq.heapify(free_servers)
+        
+        # Min-heap of busy servers: (free_time, weight, index)
+        busy_servers = []
+        
+        ans = []
+        current_time = 0
+        
+        for j in range(m):
+            # Task arrives at second j
+            current_time = max(current_time, j)
+            
+            # Move servers whose tasks are completed by current_time back to free_servers
+            while busy_servers and busy_servers[0][0] <= current_time:
+                _, weight, idx = heapq.heappop(busy_servers)
+                heapq.heappush(free_servers, (weight, idx))
+                
+            # If no servers are free, fast-forward time to when the next server finishes
+            if not free_servers:
+                current_time = busy_servers[0][0]
+                while busy_servers and busy_servers[0][0] <= current_time:
+                    _, weight, idx = heapq.heappop(busy_servers)
+                    heapq.heappush(free_servers, (weight, idx))
+            
+            # Assign the task to the optimal available server
+            weight, idx = heapq.heappop(free_servers)
+            ans.append(idx)
+            
+            # Push the server into busy_servers with its new release time
+            free_time = current_time + tasks[j]
+            heapq.heappush(busy_servers, (free_time, weight, idx))
+            
+        return ans
+
+
+        
