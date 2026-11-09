@@ -1,0 +1,97 @@
+
+import heapq
+
+class Solution:
+    def busiestServers(self, k, arrival, load):
+        n = len(arrival)
+
+        # Segment tree: 1 means available, 0 means busy.
+        size = 4 * k
+        tree = [0] * size
+
+        def build(node, left, right):
+            if left == right:
+                tree[node] = 1
+                return
+
+            mid = (left + right) // 2
+            build(node * 2, left, mid)
+            build(node * 2 + 1, mid + 1, right)
+
+            tree[node] = tree[node * 2] + tree[node * 2 + 1]
+
+        def update(node, left, right, index, value):
+            if left == right:
+                tree[node] = value
+                return
+
+            mid = (left + right) // 2
+
+            if index <= mid:
+                update(node * 2, left, mid, index, value)
+            else:
+                update(node * 2 + 1, mid + 1, right, index, value)
+
+            tree[node] = tree[node * 2] + tree[node * 2 + 1]
+
+        # Find the first available server with index >= start.
+        def find(node, left, right, start):
+            if right < start or tree[node] == 0:
+                return -1
+
+            if left == right:
+                return left
+
+            mid = (left + right) // 2
+
+            result = find(node * 2, left, mid, start)
+
+            if result != -1:
+                return result
+
+            return find(node * 2 + 1, mid + 1, right, start)
+
+        build(1, 0, k - 1)
+
+        # (finish time, server index)
+        busy = []
+
+        handled = [0] * k
+
+        for i in range(n):
+            current_time = arrival[i]
+
+            # Release servers whose requests are finished.
+            while busy and busy[0][0] <= current_time:
+                finish, server = heapq.heappop(busy)
+                update(1, 0, k - 1, server, 1)
+
+            start = i % k
+
+            # Search from start to k-1.
+            server = find(1, 0, k - 1, start)
+
+            # If not found, wrap around to server 0.
+            if server == -1:
+                server = find(1, 0, k - 1, 0)
+
+            # Drop the request if all servers are busy.
+            if server == -1:
+                continue
+
+            handled[server] += 1
+
+            # Mark server as busy.
+            update(1, 0, k - 1, server, 0)
+
+            heapq.heappush(
+                busy,
+                (current_time + load[i], server)
+            )
+
+        maximum = max(handled)
+
+        return [
+            i for i in range(k)
+            if handled[i] == maximum
+        ]
