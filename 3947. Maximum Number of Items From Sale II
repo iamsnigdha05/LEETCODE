@@ -1,0 +1,51 @@
+class Solution:
+    def maximumSaleItems(self, items: list[list[int]], budget: int) -> int:
+        n = len(items)
+        min_price = min(p for _, p in items)
+        max_f = max(f for f, _ in items)
+        
+        useful = []
+        
+        if max_f <= 2_000_000:
+            freq = [0] * (max_f + 1)
+            for f, _ in items:
+                freq[f] += 1
+                
+            mult_count = [0] * (max_f + 1)
+            for f in range(1, max_f + 1):
+                if freq[f]:
+                    for m in range(f, max_f + 1, f):
+                        mult_count[f] += freq[m]
+                        
+            limit_p = 2 * min_price
+            for f, p in items:
+                if p < limit_p:
+                    cap = mult_count[f] - 1
+                    if cap > 0:
+                        useful.append((p, cap))
+        else:
+            limit_p = 2 * min_price
+            for i in range(n):
+                fi, pi = items[i]
+                if pi >= limit_p:
+                    continue
+                cap = 0
+                for j in range(n):
+                    if i != j and items[j][0] % fi == 0:
+                        cap += 1
+                if cap > 0:
+                    useful.append((pi, cap))
+                    
+        useful.sort()
+        
+        ans = 0
+        rem_budget = budget
+        
+        for p, cap in useful:
+            take = min(cap, rem_budget // p)
+            if take > 0:
+                ans += take * 2
+                rem_budget -= take * p
+                
+        ans += rem_budget // min_price
+        return ans
